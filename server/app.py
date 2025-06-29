@@ -18,8 +18,8 @@ class Signup(Resource):
     def post(self):
         data = request.get_json()
         user = User(
-            username= data('username'),
-            email = data('email'),
+            username= data['username'],
+            email = data['email'],
         )
         user.password = data['password']
         db.session.add(user)
@@ -40,7 +40,7 @@ class CheckSession(Resource):
     def get(self):
         user_id = session.get('user_id')
         if user_id:
-            user = User.query.get('user_id')
+            user = User.query.get(user_id)
             return user.to_dict(), 200
         return {'error': 'Not logged in'}, 401
     
