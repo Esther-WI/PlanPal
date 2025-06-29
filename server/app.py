@@ -67,11 +67,45 @@ class Events(Resource):
         db.session.commit()
         return new_event.to_dict(), 201
     
+class EventByID(Resource):
+    def get(self, id):
+        event = Event.query.get(id)
+        if event:
+            event_dict = event.to_dict()
+            event_dict['attendees'] = [u.to_dict() for u in event.attendees]
+            user_id = session.get('user_id')
+            if user_id:
+                rsvp = RSVP.query.filter_by(event_id=id, user_id=user_id).first()
+                if rsvp:
+                    event_dict['rsvp_status'] = rsvp.status
+            return event_dict, 200
+        return {'error': 'Event not found'}, 404
+
+    
+
+class RSVPs(Resource):
+    def post(self):
+        data = request.get_json()
+        new_rsvp = RSVP(
+            status=data['status'],
+            event_id=data['event_id'],
+            user_id=session.get('user_id')
+        )
+        db.session.add(new_rsvp)
+        db.session.commit()
+        return new_rsvp.to_dict(), 201
+
+
+    
 api.add_resource(Signup, '/signup')
 api.add_resource(Login, '/login')
 api.add_resource(CheckSession, '/check_session')
 api.add_resource(Logout, '/logout')
 api.add_resource(Events, '/events')
+api.add_resource(EventByID, '/events/<int:id>')
+api.add_resource(RSVPs, '/rsvps')
+
+
 
 
 
