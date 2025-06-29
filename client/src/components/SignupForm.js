@@ -14,9 +14,15 @@ function SignupForm({ onSignup }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     })
-      .then((r) => r.json())
-      .then((user) => onSignup(user));
+      .then((r) => {
+  if (r.ok) {
+    r.json().then(user => onSignup(user));
+  } else {
+    alert("Signup failed");
   }
+});
+  }
+  
 
   return (
     <form onSubmit={handleSubmit}>

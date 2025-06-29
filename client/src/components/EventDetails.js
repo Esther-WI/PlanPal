@@ -30,15 +30,23 @@ function EventDetails({ currentUser }) {
   if (!event) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div
+      style={{
+        backgroundColor: "#141b34",
+        padding: "2rem",
+        borderRadius: "12px",
+        maxWidth: "700px",
+        margin: "2rem auto",
+        boxShadow: "0 0 20px #00d9ff33",
+      }}
+    >
       <h2>{event.title}</h2>
       <p>{event.description}</p>
       <p>
         <strong>Date:</strong> {new Date(event.date).toLocaleString()}
       </p>
       <p>
-        <strong>Location:</strong>
-        {event.location}
+        <strong>Location:</strong> {event.location}
       </p>
       <select value={status} onChange={(e) => setStatus(e.target.value)}>
         <option value="Going">Going</option>
@@ -46,7 +54,19 @@ function EventDetails({ currentUser }) {
         <option value="Maybe">Maybe</option>
       </select>
       <button onClick={handleRSVP}>RSVP</button>
+
+      {event.attendees && event.attendees.length > 0 && (
+        <div style={{ marginTop: "1.5rem" }}>
+          <h4>Attendees:</h4>
+          <ul>
+            {event.attendees.map((user) => (
+              <li key={user.id}>{user.username}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
+
 export default EventDetails;

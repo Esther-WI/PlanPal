@@ -13,10 +13,21 @@ function EventList() {
   return (
     <div>
       <h2>Events</h2>
-      <ul>
+      <ul
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "1rem",
+        }}
+      >
         {events.map((e) => (
           <li key={e.id}>
-            <Link to={`/events/${e.id}`}>{e.title}</Link>
+            <Link
+              to={`/events/${e.id}`}
+              style={{ fontSize: "1.2rem", fontWeight: "bold" }}
+            >
+            {e.title}
+            </Link>
           </li>
         ))}
       </ul>
