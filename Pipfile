@@ -13,6 +13,7 @@ flask-migrate = "*"
 flask-cors = "*"
 flask-restful = "*"
 sqlalchemy-serializer = "*"
+gunicorn = "*"
 
 [requires]
 python_full_version = "3.8.13"

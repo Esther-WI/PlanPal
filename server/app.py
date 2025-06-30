@@ -17,6 +17,10 @@ from models import User, Event, RSVP
 class Signup(Resource):
     def post(self):
         data = request.get_json()
+
+        if User.query.filter_by(username=data['username']).first() or \
+           User.query.filter_by(email=data['email']).first():
+            return {"error": "Username or email already taken."}, 400
         user = User(
             username= data['username'],
             email = data['email'],
@@ -34,7 +38,7 @@ class Login(Resource):
         if user and user.authenticate(data['password']):
             session['user_id']=user.id
             return user.to_dict(),200
-        return {'error': 'Invalid credentials'}, 401
+        return {'error': 'Invalid username or password'}, 401
     
 class CheckSession(Resource):
     def get(self):

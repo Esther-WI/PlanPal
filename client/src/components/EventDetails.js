@@ -24,7 +24,17 @@ function EventDetails({ currentUser }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ event_id: id, status: status }),
-    }).then(() => alert("RSVP submitted!"));
+    }).then(() => {
+      alert("RSVP submitted!");
+      fetch(`/events/${id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setEvent(data);
+        if (data.rsvp_status) {
+          setStatus(data.rsvp_status);
+        }
+      });
+  });
   }
 
   if (!event) return <p>Loading...</p>;

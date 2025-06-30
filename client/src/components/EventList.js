@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 
 function EventList() {
   const [events, setEvents] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("/events")
@@ -13,6 +16,12 @@ function EventList() {
   return (
     <div>
       <h2>Events</h2>
+      <button
+        onClick={() => navigate("/some-path")}
+        style={{ marginBottom: "1rem" }}
+      >
+        + Create New Event
+      </button>
       <ul
         style={{
           display: "grid",
@@ -26,7 +35,7 @@ function EventList() {
               to={`/events/${e.id}`}
               style={{ fontSize: "1.2rem", fontWeight: "bold" }}
             >
-            {e.title}
+              {e.title}
             </Link>
           </li>
         ))}

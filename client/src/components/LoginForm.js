@@ -1,28 +1,53 @@
-import {useState, usestate} from 'react';
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-function LoginForm({onLogin}) {
-    const[username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+function LoginForm({ onLogin }) {
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [errors, setErrors] = useState("");
+  const navigate = useNavigate(); // ✅
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        fetch('/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username, password})
-        })
-            .then(r => r.json())
-            .then(user => onLogin(user))
-            
-    }
+  function handleChange(e) {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  }
 
-    return (
-        <form onSubmit={handleSubmit}>
-            <input value = {username} onChange={e => setUsername(e.target.value)} placeholder = "Username"/>
-            <input type = "password" value={password} onChange={ e => setPassword(e.target.value)} placeholder="PAssword"/>
-            <button type = "submit">Login</button>
+  function handleSubmit(e) {
+    e.preventDefault();
+    fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    }).then((r) => {
+      if (r.ok) {
+        r.json().then((user) => {
+          onLogin(user);
+          navigate("/events"); // ✅ Redirect to events
+        });
+      } else {
+        r.json().then((err) => setErrors(err.error));
+      }
+    });
+  }
 
-        </form>
-    );
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>Login</h2>
+      {errors && <p style={{ color: "red" }}>{errors}</p>}
+      <input
+        name="username"
+        value={formData.username}
+        onChange={handleChange}
+        placeholder="Username"
+      />
+      <input
+        name="password"
+        value={formData.password}
+        type="password"
+        onChange={handleChange}
+        placeholder="Password"
+      />
+      <button type="submit">Login</button>
+    </form>
+  );
 }
+
 export default LoginForm;

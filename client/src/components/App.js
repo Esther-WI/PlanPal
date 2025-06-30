@@ -1,93 +1,102 @@
-import React, { useEffect, useState } from "react";
-import { Switch, Route, BrowserRouter as Router, Link } from "react-router-dom";
-import { useHistory } from "react-router-dom";
-
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
-import EventList from "./EventList";
-import EventDetails from "./EventDetails";
+import EventList from "./EventList"; // Your event list component
+import AddEventForm from "./AddEventForm"; // Optional if you have event creation
 
-function App() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const history = useHistory();
-
-
-  useEffect(() => {
-    fetch("/check_session").then((r) => {
-      if (r.ok) r.json().then(setCurrentUser);
-    });
-  }, []);
-
-  function handleLogout() {
-    fetch("/logout", { method: "DELETE" }).then((r) => {
-      if (r.ok) {
-        setCurrentUser(null);
-        history.push("/login"); // 👈 redirect to login page
-      }
-    });
-  }
-
-
+function AppWrapper() {
   return (
     <Router>
-      <header
-        style={{
-          backgroundColor: "#141b34",
-          padding: "1rem 2rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          boxShadow: "0 0 15px #00d9ff55",
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: "Permanent Marker, cursive",
-            fontSize: "2.5rem",
-            margin: "0.5rem 0",
-          }}
-        >
-          PenPal
-        </h1>
-        {currentUser ? (
-          <div>
-            <p style={{ marginBottom: "0.5rem" }}>
-              Welcome, <strong>{currentUser.username}</strong>
-            </p>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        ) : (
-          <p>Please login or sign up</p>
-        )}
-        <nav style={{ marginTop: "1rem" }}>
-          <Link to="/login" style={{ marginRight: "1rem" }}>
-            Login
-          </Link>
-          <Link to="/signup" style={{ marginRight: "1rem" }}>
-            Signup
-          </Link>{" "}
-          | <Link to="/events">Events</Link>
-        </nav>
-      </header>
-
-      <main>
-        <Switch>
-          <Route path="/login">
-            <LoginForm onLogin={setCurrentUser} />
-          </Route>
-          <Route path="/signup">
-            <SignupForm onSignup={setCurrentUser} />
-          </Route>
-          <Route exact path="/events">
-            <EventList />
-          </Route>
-          <Route path="/events/:id">
-            <EventDetails currentUser={currentUser} />
-          </Route>
-        </Switch>
-      </main>
+      <App />
     </Router>
   );
 }
 
-export default App;
+function App() {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  // ✅ Check session on load
+  useEffect(() => {
+    fetch("/check_session").then((r) => {
+      if (r.ok) {
+        r.json().then(setUser);
+      }
+    });
+  }, []);
+
+  // ✅ Logout function
+  function handleLogout() {
+    fetch("/logout", {
+      method: "DELETE",
+    }).then(() => {
+      setUser(null);
+      navigate("/login");
+    });
+  }
+
+  return (
+    <div>
+      <nav style={{ padding: "10px", background: "#f0f0f0" }}>
+        {user ? (
+          <>
+            <span style={{ marginRight: "10px" }}>
+              Welcome, {user.username}
+            </span>
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/signup">Sign Up</Link> | <Link to="/login">Login</Link>
+          </>
+        )}
+      </nav>
+
+      <Routes>
+        {/* ✅ Public Routes */}
+        <Route
+          path="/signup"
+          element={
+            user ? <Navigate to="/events" /> : <SignupForm onSignup={setUser} />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            user ? <Navigate to="/events" /> : <LoginForm onLogin={setUser} />
+          }
+        />
+
+        {/* ✅ Protected Route */}
+        <Route
+          path="/events"
+          element={user ? <EventList user={user} /> : <Navigate to="/login" />}
+        />
+
+        {/* Optional: Add Event Page */}
+        <Route
+          path="/add-event"
+          element={
+            user ? <AddEventForm user={user} /> : <Navigate to="/login" />
+          }
+        />
+
+        {/* Redirect unknown routes */}
+        <Route
+          path="*"
+          element={<Navigate to={user ? "/events" : "/login"} />}
+        />
+      </Routes>
+    </div>
+  );
+}
+
+export default AppWrapper;
