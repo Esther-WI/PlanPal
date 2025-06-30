@@ -63,3 +63,16 @@ class RSVP(db.Model, SerializerMixin):
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'))
 
     serialize_rules = ('-user', '-event')
+
+class Comment(db.Model, SerializerMixin):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String, nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('events.id'))
+
+    user = db.relationship('User', backref='comments')
+    event = db.relationship('Event', backref='comments')
+
+    serialize_rules = ('-user.comments', '-event.comments', 'user.username')

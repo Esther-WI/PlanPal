@@ -8,7 +8,7 @@ from flask_restful import Resource
 
 # Local imports
 from config import app, db, api
-from models import User, Event, RSVP
+from models import User, Event, RSVP, Comment
 from datetime import datetime
 # Add your model imports
 
@@ -92,6 +92,28 @@ class EventByID(Resource):
             return event_dict, 200
         return {'error': 'Event not found'}, 404
 
+
+    
+    def patch(self, id):
+        event = Event.query.get(id)
+        if not event:
+            return {"error": "Event not found"}, 404
+
+        data = request.get_json()
+        for attr in ['title', 'description', 'date', 'location']:
+            if attr in data:
+                setattr(event, attr, data[attr])
+        db.session.commit()
+        return event.to_dict(), 200
+    def delete(self, id):
+        event = Event.query.get(id)
+        if not event:
+            return {"error": "Event not found"}, 404
+        
+        db.session.delete(event)
+        db.session.commit()
+        return {"message": "Event deleted successfully"}, 200
+
     
 
 class RSVPs(Resource):
@@ -105,6 +127,27 @@ class RSVPs(Resource):
         db.session.add(new_rsvp)
         db.session.commit()
         return new_rsvp.to_dict(), 201
+    
+
+class Comments(Resource):
+    def get(self):
+        event_id = request.args.get("event_id")
+        if event_id:
+            return [c.to_dict() for c in Comment.query.filter_by(event_id=event_id)], 200
+        return [c.to_dict() for c in Comment.query.all()], 200
+
+    def post(self):
+        data = request.get_json()
+        new_comment = Comment(
+            content=data['content'],
+            user_id=session.get('user_id'),
+            event_id=data['event_id']
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+        return new_comment.to_dict(), 201
+
+    
 
 
     
@@ -115,6 +158,8 @@ api.add_resource(Logout, '/logout')
 api.add_resource(Events, '/events')
 api.add_resource(EventByID, '/events/<int:id>')
 api.add_resource(RSVPs, '/rsvps')
+api.add_resource(Comments, "/comments")
+
 
 
 

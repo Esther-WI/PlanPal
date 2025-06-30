@@ -22,7 +22,7 @@ function AddEventForm() {
       if (r.ok) {
         r.json().then((event) => {
           alert("Event created!");
-          navigate(`/events/${event.id}`);
+          navigate(`/events`);
         });
       } else {
         alert("Failed to create event.");
