@@ -19,7 +19,7 @@ class User(db.Model, SerializerMixin):
     rsvps = db.relationship('RSVP', backref='user', cascade='all, delete-orphan')
 
     attending_events = association_proxy('rsvps', 'event')
-    serialize_rules = ('-password_hash', '-events', '-rsvps')
+    serialize_rules = ('-_password_hash', '-events', '-rsvps')
 
     @property
     def password(self):

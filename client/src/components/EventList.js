@@ -17,7 +17,7 @@ function EventList() {
     <div>
       <h2>Events</h2>
       <button
-        onClick={() => navigate("/some-path")}
+        onClick={() => navigate("/add-event")}
         style={{ marginBottom: "1rem" }}
       >
         + Create New Event

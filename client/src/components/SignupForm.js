@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 function SignupForm({ onSignup }) {
   const [formData, setFormData] = useState({
@@ -7,12 +7,6 @@ function SignupForm({ onSignup }) {
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState("");
-  const navigate = useNavigate(); // ✅
-
-  function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -22,40 +16,46 @@ function SignupForm({ onSignup }) {
       body: JSON.stringify(formData),
     }).then((r) => {
       if (r.ok) {
-        r.json().then((user) => {
-          onSignup(user);
-          navigate("/events"); // ✅ Redirect to events
-        });
+        r.json().then((user) => onSignup(user));
       } else {
-        r.json().then((err) => setErrors(err.error));
+        alert("Signup failed");
       }
     });
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Sign Up</h2>
-      {errors && <p style={{ color: "red" }}>{errors}</p>}
+      <h2>Create an Account</h2>
       <input
         name="username"
         value={formData.username}
-        onChange={handleChange}
+        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
         placeholder="Username"
       />
       <input
         name="email"
         value={formData.email}
-        onChange={handleChange}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
         placeholder="Email"
       />
       <input
         name="password"
-        value={formData.password}
         type="password"
-        onChange={handleChange}
+        value={formData.password}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
         placeholder="Password"
       />
       <button type="submit">Sign Up</button>
+
+      <p style={{ marginTop: "1rem" }}>
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          style={{ color: "#00d9ff", textDecoration: "underline" }}
+        >
+          Login here
+        </Link>
+      </p>
     </form>
   );
 }

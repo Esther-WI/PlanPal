@@ -1,51 +1,56 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function LoginForm({ onLogin }) {
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [errors, setErrors] = useState("");
-  const navigate = useNavigate(); // ✅
-
-  function handleChange(e) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
     fetch("/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    }).then((r) => {
-      if (r.ok) {
-        r.json().then((user) => {
-          onLogin(user);
-          navigate("/events"); // ✅ Redirect to events
-        });
-      } else {
-        r.json().then((err) => setErrors(err.error));
-      }
-    });
+      body: JSON.stringify({ username, password }),
+    })
+      .then((r) => {
+        if (r.ok) {
+          return r.json().then((user) => onLogin(user));
+        } else {
+          alert("Invalid username or password.");
+        }
+      })
+      .catch((err) => {
+        console.error("Login error:", err);
+        alert("Something went wrong. Try again.");
+      });
   }
+
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Login</h2>
-      {errors && <p style={{ color: "red" }}>{errors}</p>}
+      <h2>Log In</h2>
       <input
-        name="username"
-        value={formData.username}
-        onChange={handleChange}
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
         placeholder="Username"
       />
       <input
-        name="password"
-        value={formData.password}
         type="password"
-        onChange={handleChange}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
       />
       <button type="submit">Login</button>
+
+      {/* Optional Sign Up link */}
+      <p style={{ marginTop: "1rem" }}>
+        Don't have an account?{" "}
+        <a
+          href="/signup"
+          style={{ color: "#00d9ff", textDecoration: "underline" }}
+        >
+          Sign up here
+        </a>
+      </p>
     </form>
   );
 }

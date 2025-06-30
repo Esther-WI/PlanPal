@@ -6,8 +6,7 @@ function EventDetails({ currentUser }) {
   const [event, setEvent] = useState(null);
   const [status, setStatus] = useState("Going");
 
-
-  useEffect(() => {
+  function fetchEvent() {
     fetch(`/events/${id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -16,8 +15,11 @@ function EventDetails({ currentUser }) {
           setStatus(data.rsvp_status);
         }
       });
-  }, [id]);
+  }
 
+  useEffect(() => {
+    fetchEvent();
+  }, [id]);
 
   function handleRSVP() {
     fetch("/rsvps", {
@@ -26,15 +28,8 @@ function EventDetails({ currentUser }) {
       body: JSON.stringify({ event_id: id, status: status }),
     }).then(() => {
       alert("RSVP submitted!");
-      fetch(`/events/${id}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setEvent(data);
-        if (data.rsvp_status) {
-          setStatus(data.rsvp_status);
-        }
-      });
-  });
+      fetchEvent(); // 🔁 refresh attendees list
+    });
   }
 
   if (!event) return <p>Loading...</p>;

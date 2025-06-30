@@ -9,6 +9,7 @@ from flask_restful import Resource
 # Local imports
 from config import app, db, api
 from models import User, Event, RSVP
+from datetime import datetime
 # Add your model imports
 
 
@@ -16,20 +17,26 @@ from models import User, Event, RSVP
 
 class Signup(Resource):
     def post(self):
-        data = request.get_json()
+        try:
+            data = request.get_json()
 
-        if User.query.filter_by(username=data['username']).first() or \
-           User.query.filter_by(email=data['email']).first():
-            return {"error": "Username or email already taken."}, 400
-        user = User(
-            username= data['username'],
-            email = data['email'],
-        )
-        user.password = data['password']
-        db.session.add(user)
-        db.session.commit()
-        session['user_id'] = user.id
-        return user.to_dict(), 201
+            if User.query.filter_by(username=data['username']).first() or \
+               User.query.filter_by(email=data['email']).first():
+                return {"error": "Username or email already taken."}, 400
+
+            user = User(
+                username=data['username'],
+                email=data['email'],
+            )
+            user.password = data['password']
+            db.session.add(user)
+            db.session.commit()
+            session['user_id'] = user.id
+            return user.to_dict(), 201
+        except Exception as e:
+            print("Signup error:", e)  # ✅ this logs the real issue
+            return {"error": "Signup failed"}, 400
+
     
 class Login(Resource):
     def post(self):
@@ -63,7 +70,7 @@ class Events(Resource):
         new_event =  Event(
             title = data['title'],
             description = data.get('description'),
-            date = data['date'],
+            date = datetime.fromisoformat(data['date']),
             location = data['location'],
             user_id = session.get('user_id')
         )
