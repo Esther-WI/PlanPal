@@ -6,7 +6,7 @@ PlanPal is a full-stack event management app where users can view events, RSVP t
 
 ## Live Demo
 
-- **Frontend**: [planpal-cooldesign.netlify.app](https://planpal-cooldesign.netlify.app)
+- **Frontend**: [planpal-frontend-owkh.onrender.com](https://planpal-frontend-owkh.onrender.com)
 - **Backend API**: [planpal-backend-iney.onrender.com](https://planpal-backend-iney.onrender.com)
 
 ---
